@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import Header from '@/layouts/Header.vue'
 import Footer from '@/layouts/Footer.vue'
+import VueColorAvatar from '@/components/VueColorAvatar.vue'
 import { useI18n } from 'vue-i18n'
+import { ref } from 'vue'
 
 const { t } = useI18n()
+const flipped = ref(false)
+
+const handleAction = () => {}
 </script>
 
 <template>
@@ -13,6 +18,17 @@ const { t } = useI18n()
         <div class="content-view">
           <Header />
           <div class="playground">
+            <div class="avatar-wrapper">
+              <VueColorAvatar
+                ref="colorAvatarRef"
+                :size="280"
+                :style="{
+                  transform: `rotateY(${flipped ? -180 : 0}deg)`
+                }"
+              />
+            </div>
+
+            <ActionBar @action="handleAction" />
             <div class="action-group">
               <button type="button" class="action-btn action-randomize">
                 {{ t('action.randomize') }}
