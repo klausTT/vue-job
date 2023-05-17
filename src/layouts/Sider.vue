@@ -35,6 +35,7 @@ const { isCollapsed, openSider, closeSider } = useSider()
   }
 
   &.collapsed {
+    transition: transform 0.5s;
     transform: translateX(100%);
 
     .icon-right {

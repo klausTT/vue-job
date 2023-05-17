@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import Header from '@/layouts/Header.vue'
 import Footer from '@/layouts/Footer.vue'
+import Sider from '@/layouts/Sider.vue'
+// import Container from '@/layouts/Container.vue'
 import VueColorAvatar from '@/components/VueColorAvatar.vue'
+import Configurator from '@/components/Configurator.vue'
 import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
 
 const { t } = useI18n()
+
 const flipped = ref(false)
 
 const handleAction = () => {}
@@ -47,6 +51,9 @@ const handleAction = () => {}
         </div>
       </div>
     </div>
+    <Sider>
+      <Configurator />
+    </Sider>
   </main>
 </template>
 

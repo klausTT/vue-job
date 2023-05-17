@@ -42,6 +42,7 @@ const props = withDefaults(defineProps<VueColorAvatarProps>(), {
 })
 
 const { option: avatarOption, size: avatarSize } = toRefs(props)
+console.log(avatarOption.value)
 
 const avatarRef = ref<VueColorAvatarRef['avatarRef']>()
 
@@ -56,6 +57,63 @@ function getWrapperShapeClassName() {
 }
 
 const svgContent = ref('')
+
+watchEffect(async () => {
+  const sortedList = Object.entries(avatarOption.value.widgets).sort(
+    ([prevShape, prev], [nextShape, next]) => {
+      const ix = prev.zIndex ?? AVATAR_LAYER[prevShape as WidgetType]?.zIndex ?? 0
+      const iix = next.zIndex ?? AVATAR_LAYER[nextShape as WidgetType]?.zIndex ?? 0
+      return ix - iix
+    }
+  )
+
+  const promises: Promise<string>[] = sortedList.map(async ([widgetType, opt]) => {
+    if (opt.shape !== NONE && widgetData?.[widgetType as WidgetType]?.[opt.shape]) {
+      return (await widgetData[widgetType as WidgetType][opt.shape]()).default
+    }
+    return ''
+  })
+
+  let skinColor: string | undefined
+
+  const svgRawList = await Promise.all(promises).then((raw) => {
+    return raw.map((svgRaw, i) => {
+      const [widgetType, widget] = sortedList[i]
+      let widgetFillColor = widget.fillColor
+
+      if (widgetType === WidgetType.Face) {
+        skinColor = widgetFillColor
+      }
+      if (skinColor && widgetType === WidgetType.Ear) {
+        widgetFillColor = skinColor
+      }
+
+      const content = svgRaw
+        .slice(svgRaw.indexOf('>', svgRaw.indexOf('<svg')) + 1)
+        .replace('</svg>', '')
+        .replaceAll('$fillColor', widgetFillColor || 'transparent')
+
+      return `
+          ${content}
+      `
+    })
+  })
+
+  svgContent.value = `
+    <svg
+      width="${avatarSize.value}"
+      height="${avatarSize.value}"
+      viewBox="0 0 ${avatarSize.value / 0.7} ${avatarSize.value / 0.7}"
+      preserveAspectRatio="xMidYMax meet"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g transform="translate(100, 65)">
+        ${svgRawList.join('')}
+      </g>
+    </svg>
+  `
+})
 </script>
 
 <style lang="scss" scoped>
