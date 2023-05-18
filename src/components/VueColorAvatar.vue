@@ -30,6 +30,7 @@ import { AVATAR_LAYER, NONE } from '@/utils/constant'
 import { widgetData } from '@/utils/dynamic-data'
 
 import Background from './widgets/Background.vue'
+import { useAvatarOption } from '@/hooks'
 
 interface VueColorAvatarProps {
   option: AvatarOption
@@ -40,9 +41,10 @@ const props = withDefaults(defineProps<VueColorAvatarProps>(), {
   option: () => getRandomAvatarOption(),
   size: 280
 })
+const [_, setAvatarOption] = useAvatarOption()
 
 const { option: avatarOption, size: avatarSize } = toRefs(props)
-console.log(avatarOption.value)
+setAvatarOption(avatarOption.value)
 
 const avatarRef = ref<VueColorAvatarRef['avatarRef']>()
 

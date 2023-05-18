@@ -22,11 +22,7 @@ function handleWindowResize() {
 
 onMounted(() => {
   void (function () {
-    const throttle = function (
-      type: string,
-      customEventName: string,
-      obj: Window
-    ) {
+    const throttle = function (type: string, customEventName: string, obj: Window) {
       obj = obj || window
       let running = false
       const func = () => {

@@ -7,6 +7,7 @@ import VueColorAvatar from '@/components/VueColorAvatar.vue'
 import Configurator from '@/components/Configurator.vue'
 import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
+import Container from './layouts/Container.vue'
 
 const { t } = useI18n()
 
@@ -17,7 +18,7 @@ const handleAction = () => {}
 
 <template>
   <main>
-    <div>
+    <Container>
       <div class="content-warpper">
         <div class="content-view">
           <Header />
@@ -50,7 +51,7 @@ const handleAction = () => {}
           <Footer />
         </div>
       </div>
-    </div>
+    </Container>
     <Sider>
       <Configurator />
     </Sider>
