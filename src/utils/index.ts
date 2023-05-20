@@ -208,3 +208,7 @@ export function highlightJSON(json: string): string {
     }
   )
 }
+
+export function hasPropFn(target: { [key: string]: any }, key: string) {
+  return Reflect.has(target, key)
+}

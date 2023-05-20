@@ -2,18 +2,42 @@
 import Header from '@/layouts/Header.vue'
 import Footer from '@/layouts/Footer.vue'
 import Sider from '@/layouts/Sider.vue'
-// import Container from '@/layouts/Container.vue'
+import Container from '@/layouts/Container.vue'
 import VueColorAvatar from '@/components/VueColorAvatar.vue'
 import Configurator from '@/components/Configurator.vue'
+import ActionBar from '@/components/ActionBar.vue'
 import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
-import Container from './layouts/Container.vue'
+import { useAvatarOption } from './hooks'
+import { getRandomAvatarOption } from './utils'
+import { ActionType } from './enums'
+import { useStore } from './store'
+import { UNDO, REDO } from './store/mutation-type'
 
 const { t } = useI18n()
+const [avatarOption, setAvatarOption] = useAvatarOption()
+const store = useStore()
 
 const flipped = ref(false)
 
-const handleAction = () => {}
+const handleAction = (actionType: ActionType) => {
+  if (actionType === ActionType.Flip) {
+    flipped.value = !flipped.value
+  }
+
+  if (actionType === ActionType.Undo) {
+    store[UNDO]()
+  }
+
+  if (actionType === ActionType.Redo) {
+    store[REDO]()
+  }
+}
+
+const handleRandomAction = () => {
+  const item = getRandomAvatarOption()
+  setAvatarOption(item)
+}
 </script>
 
 <template>
@@ -35,7 +59,7 @@ const handleAction = () => {}
 
             <ActionBar @action="handleAction" />
             <div class="action-group">
-              <button type="button" class="action-btn action-randomize">
+              <button type="button" class="action-btn action-randomize" @click="handleRandomAction">
                 {{ t('action.randomize') }}
               </button>
 

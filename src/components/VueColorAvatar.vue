@@ -33,18 +33,15 @@ import Background from './widgets/Background.vue'
 import { useAvatarOption } from '@/hooks'
 
 interface VueColorAvatarProps {
-  option: AvatarOption
   size?: number
 }
 
 const props = withDefaults(defineProps<VueColorAvatarProps>(), {
-  option: () => getRandomAvatarOption(),
   size: 280
 })
-const [_, setAvatarOption] = useAvatarOption()
+const [avatarOption] = useAvatarOption()
 
-const { option: avatarOption, size: avatarSize } = toRefs(props)
-setAvatarOption(avatarOption.value)
+const { size: avatarSize } = toRefs(props)
 
 const avatarRef = ref<VueColorAvatarRef['avatarRef']>()
 

@@ -6,9 +6,9 @@ import { SETTINGS } from '@/utils/constant'
 import { onMounted, ref } from 'vue'
 import { WidgetType, type WidgetShape } from '@/enums'
 import { previewData } from '@/utils/dynamic-data'
+import type { AvatarOption } from '@/types'
 
 const { t } = useI18n()
-
 const [avatarOption, setAvatarOption] = useAvatarOption()
 const sectionList = Object.values(WidgetType)
 const sections = ref<
@@ -21,29 +21,9 @@ const sections = ref<
     }[]
   }[]
 >([])
-onMounted(() => {
-  void (async () => {
-    const a = await Promise.all(
-      sectionList.map((section) => {
-        return getWidgets(section)
-      })
-    )
 
-    sections.value = sectionList.map((li, i) => {
-      return {
-        widgetType: li,
-        widgetList: a[i]
-      }
-    })
-  })()
-})
-
-async function getWidgets(widgetType: WidgetType) {
+const getWidgets = async (widgetType: WidgetType) => {
   const list = SETTINGS[`${widgetType}Shape`]
-  // const promises: Promise<string>[] = list.map(async (widget: string) => {
-  //   return (await import(`../assets/preview/${widgetType}/${widget}.svg?raw`))
-  //     .default
-  // })
   const promises: Promise<string>[] = list.map(async (widget: string) => {
     if (widget !== 'none' && previewData?.[widgetType]?.[widget]) {
       return (await previewData[widgetType][widget]()).default
@@ -61,6 +41,39 @@ async function getWidgets(widgetType: WidgetType) {
   })
   return svgRawList
 }
+
+const handleSwitchOption = (options: Partial<AvatarOption>) => {
+  // 判断options的key跟avatarOption对应上的就修改
+  const res: AvatarOption = {
+    ...avatarOption.value
+  }
+  Object.keys(options).forEach((item) => {
+    const r = item as keyof AvatarOption
+    const option = options[r]
+    if (option) {
+      res[r] = option as never
+    }
+  })
+
+  setAvatarOption(res)
+}
+
+onMounted(() => {
+  void (async () => {
+    const a = await Promise.all(
+      sectionList.map((section) => {
+        return getWidgets(section)
+      })
+    )
+
+    sections.value = sectionList.map((li, i) => {
+      return {
+        widgetType: li,
+        widgetList: a[i]
+      }
+    })
+  })()
+})
 </script>
 
 <template>
@@ -73,6 +86,7 @@ async function getWidgets(widgetType: WidgetType) {
             :key="wrapperShape"
             class="wrapper-shape__item"
             :title="t(`wrapperShape.${wrapperShape}`)"
+            @click="handleSwitchOption({ wrapperShape })"
           >
             <div
               class="shape"
@@ -83,7 +97,18 @@ async function getWidgets(widgetType: WidgetType) {
       </SectionWrapper>
       <SectionWrapper :title="t('label.backgroundColor')">
         <ul class="color-list">
-          <li v-for="bgColor in SETTINGS.backgroundColor" :key="bgColor" class="color-list__item">
+          <li
+            v-for="bgColor in SETTINGS.backgroundColor"
+            :key="bgColor"
+            class="color-list__item"
+            @click="
+              handleSwitchOption({
+                background: {
+                  color: bgColor
+                }
+              })
+            "
+          >
             <div
               :style="{ background: bgColor }"
               class="bg-color"
@@ -118,8 +143,25 @@ async function getWidgets(widgetType: WidgetType) {
               ]"
               :key="fillColor"
               class="color-list__item"
+              @click="
+                handleSwitchOption({
+                  widgets: {
+                    ...avatarOption.widgets,
+                    [s.widgetType]: {
+                      ...avatarOption.widgets?.[s.widgetType],
+                      fillColor
+                    }
+                  }
+                })
+              "
             >
-              <div :style="{ background: fillColor }" class="bg-color" />
+              <div
+                :style="{ background: fillColor }"
+                class="bg-color"
+                :class="{
+                  active: fillColor === avatarOption.widgets[s.widgetType]?.fillColor
+                }"
+              />
             </li>
           </ul>
         </details>
@@ -129,6 +171,17 @@ async function getWidgets(widgetType: WidgetType) {
             v-for="it in s.widgetList"
             :key="it.widgetShape"
             class="list-item"
+            @click="
+              handleSwitchOption({
+                widgets: {
+                  ...avatarOption.widgets,
+                  [s.widgetType]: {
+                    ...avatarOption.widgets?.[s.widgetType],
+                    shape: it.widgetShape
+                  }
+                }
+              })
+            "
             :class="{
               selected: it.widgetShape === avatarOption.widgets?.[s.widgetType]?.shape
             }"

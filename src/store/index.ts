@@ -5,12 +5,7 @@ import type { AvatarOption } from '@/types'
 import { getRandomAvatarOption } from '@/utils'
 import { SCREEN } from '@/utils/constant'
 
-import {
-  REDO,
-  SET_AVATAR_OPTION,
-  SET_SIDER_STATUS,
-  UNDO,
-} from './mutation-type'
+import { REDO, SET_AVATAR_OPTION, SET_SIDER_STATUS, UNDO } from './mutation-type'
 
 export interface State {
   history: {
@@ -27,16 +22,16 @@ export const useStore = defineStore('store', {
       history: {
         past: [],
         present: getRandomAvatarOption({ wrapperShape: WrapperShape.Squircle }),
-        future: [],
+        future: []
       },
-      isSiderCollapsed: window.innerWidth <= SCREEN.lg,
+      isSiderCollapsed: window.innerWidth <= SCREEN.lg
     } as State),
   actions: {
     [SET_AVATAR_OPTION](data: AvatarOption) {
       this.history = {
-        past: [...this.history.past, this.history.present],
+        past: [...this.history.past, this.history.present, ...this.history.future],
         present: data,
-        future: [],
+        future: []
       }
     },
 
@@ -47,7 +42,7 @@ export const useStore = defineStore('store', {
         this.history = {
           past: newPast,
           present: previous,
-          future: [this.history.present, ...this.history.future],
+          future: [this.history.present, ...this.history.future]
         }
       }
     },
@@ -59,7 +54,7 @@ export const useStore = defineStore('store', {
         this.history = {
           past: [...this.history.past, this.history.present],
           present: next,
-          future: newFuture,
+          future: newFuture
         }
       }
     },
@@ -68,6 +63,6 @@ export const useStore = defineStore('store', {
       if (collapsed !== this.isSiderCollapsed) {
         this.isSiderCollapsed = collapsed
       }
-    },
-  },
+    }
+  }
 })
