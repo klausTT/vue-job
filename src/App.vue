@@ -3,7 +3,7 @@ import Header from '@/layouts/Header.vue'
 import Footer from '@/layouts/Footer.vue'
 import Sider from '@/layouts/Sider.vue'
 import Container from '@/layouts/Container.vue'
-import VueColorAvatar from '@/components/VueColorAvatar.vue'
+import VueColorAvatar, { type VueColorAvatarRef } from '@/components/VueColorAvatar.vue'
 import Configurator from '@/components/Configurator.vue'
 import ActionBar from '@/components/ActionBar.vue'
 import { useI18n } from 'vue-i18n'
@@ -13,11 +13,15 @@ import { getRandomAvatarOption } from './utils'
 import { ActionType } from './enums'
 import { useStore } from './store'
 import { UNDO, REDO } from './store/mutation-type'
+import { recordEvent } from './utils/ga'
+import { DOWNLOAD_DELAY, NOT_COMPATIBLE_AGENTS } from './utils/constant'
+import { name as appName } from '../package.json'
 
 const { t } = useI18n()
 const [avatarOption, setAvatarOption] = useAvatarOption()
 const store = useStore()
 
+const colorAvatarRef = ref<VueColorAvatarRef>()
 const flipped = ref(false)
 
 const handleAction = (actionType: ActionType) => {
@@ -37,6 +41,46 @@ const handleAction = (actionType: ActionType) => {
 const handleRandomAction = () => {
   const item = getRandomAvatarOption()
   setAvatarOption(item)
+}
+
+const downloadModalVisible = ref(false)
+const downloading = ref(false)
+const imageDataURL = ref('')
+
+async function handleDownload() {
+  try {
+    downloading.value = true
+    const avatarEle = colorAvatarRef.value?.avatarRef
+
+    const userAgent = window.navigator.userAgent.toLowerCase()
+    const notCompatible = NOT_COMPATIBLE_AGENTS.some((agent) => userAgent.indexOf(agent) !== -1)
+
+    if (avatarEle) {
+      const html2canvas = (await import('html2canvas')).default
+      const canvas = await html2canvas(avatarEle, {
+        backgroundColor: null
+      })
+      const dataURL = canvas.toDataURL()
+
+      if (notCompatible) {
+        imageDataURL.value = dataURL
+        downloadModalVisible.value = true
+      } else {
+        const trigger = document.createElement('a')
+        trigger.href = dataURL
+        trigger.download = `${appName}.png`
+        trigger.click()
+      }
+    }
+
+    recordEvent('click_download', {
+      event_category: 'click'
+    })
+  } finally {
+    setTimeout(() => {
+      downloading.value = false
+    }, DOWNLOAD_DELAY)
+  }
 }
 </script>
 
@@ -63,7 +107,12 @@ const handleRandomAction = () => {
                 {{ t('action.randomize') }}
               </button>
 
-              <button type="button" class="action-btn action-download">
+              <button
+                type="button"
+                class="action-btn action-download"
+                :disabled="downloading"
+                @click="handleDownload"
+              >
                 {{ t('action.download') }}
               </button>
 
