@@ -24,8 +24,6 @@ export interface VueColorAvatarRef {
 import { ref, toRefs, watchEffect } from 'vue'
 
 import { WidgetType, WrapperShape } from '@/enums'
-import type { AvatarOption } from '@/types'
-import { getRandomAvatarOption } from '@/utils'
 import { AVATAR_LAYER, NONE } from '@/utils/constant'
 import { widgetData } from '@/utils/dynamic-data'
 

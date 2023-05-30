@@ -12,7 +12,10 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "clipboard": "^2.0.11",
     "html2canvas": "^1.4.1",
+    "jszip": "^3.10.1",
+    "perfect-scrollbar": "^1.5.5",
     "pinia": "^2.0.32",
     "sass": "^1.62.1",
     "vue": "^3.2.47",

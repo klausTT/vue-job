@@ -6,6 +6,7 @@ import Container from '@/layouts/Container.vue'
 import VueColorAvatar, { type VueColorAvatarRef } from '@/components/VueColorAvatar.vue'
 import Configurator from '@/components/Configurator.vue'
 import ActionBar from '@/components/ActionBar.vue'
+import CodeModal from '@/components/Modal/CodeModal.vue'
 import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
 import { useAvatarOption } from './hooks'
@@ -19,22 +20,46 @@ import { name as appName } from '../package.json'
 
 const { t } = useI18n()
 const [avatarOption, setAvatarOption] = useAvatarOption()
+const codeVisible = ref(false)
 const store = useStore()
 
 const colorAvatarRef = ref<VueColorAvatarRef>()
 const flipped = ref(false)
 
 const handleAction = (actionType: ActionType) => {
-  if (actionType === ActionType.Flip) {
-    flipped.value = !flipped.value
-  }
+  switch (actionType) {
+    case ActionType.Undo:
+      store[UNDO]()
+      recordEvent('action_undo', {
+        event_category: 'action',
+        event_label: 'Undo'
+      })
+      break
 
-  if (actionType === ActionType.Undo) {
-    store[UNDO]()
-  }
+    case ActionType.Redo:
+      store[REDO]()
+      recordEvent('action_redo', {
+        event_category: 'action',
+        event_label: 'Redo'
+      })
+      break
 
-  if (actionType === ActionType.Redo) {
-    store[REDO]()
+    case ActionType.Flip:
+      flipped.value = !flipped.value
+      recordEvent('action_flip_avatar', {
+        event_category: 'action',
+        event_label: 'Flip Avatar'
+      })
+      break
+
+    case ActionType.Code:
+      codeVisible.value = !codeVisible.value
+      recordEvent('action_view_code', {
+        event_category: 'action',
+        event_label: 'View Avatar Option Code'
+      })
+
+      break
   }
 }
 
@@ -122,6 +147,8 @@ async function handleDownload() {
             </div>
           </div>
           <Footer />
+
+          <CodeModal :visible="codeVisible" @close="codeVisible = false" />
         </div>
       </div>
     </Container>

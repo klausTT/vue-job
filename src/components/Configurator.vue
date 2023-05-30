@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 import SectionWrapper from '@/components/SectionWrapper.vue'
+import PerfectScrollbar from '@/components/PerfectScrollbar.vue'
 import { useAvatarOption } from '@/hooks'
 import { SETTINGS } from '@/utils/constant'
 import { onMounted, ref } from 'vue'
@@ -77,7 +78,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="configurator-scroll">
+  <PerfectScrollbar class="configurator-scroll">
     <div class="configurator">
       <SectionWrapper :title="t('label.wrapperShape')"
         ><ul class="wrapper-shape">
@@ -190,7 +191,7 @@ onMounted(() => {
         </ul>
       </SectionWrapper>
     </div>
-  </div>
+  </PerfectScrollbar>
 </template>
 
 <style lang="scss" scoped>
@@ -199,7 +200,7 @@ onMounted(() => {
 .configurator-scroll {
   width: var.$layout-sider-width;
   height: 100%;
-  overflow-y: auto;
+
   @media screen and (max-width: var.$screen-lg) {
     background-color: var.$color-configurator;
   }
